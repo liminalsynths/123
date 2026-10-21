@@ -1,0 +1,668 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>孕夫日記</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: left moon-phase month rail beside a scrolling journal feed; stacks on phone. Dark = night journal, light = paper journal. */
+:root{
+  --bg:#f3ecdf;
+  --surface:#fffaf1;
+  --surface-2:#ece0ca;
+  --fg:#2a2236;
+  --fg-muted:#6f6479;
+  --accent:#e0602f;
+  --accent-2:#1f7f6c;
+  --line: rgba(42,34,54,.14);
+  --shadow: 0 1px 0 rgba(42,34,54,.05);
+  --font-display:'Noto Serif TC', 'Songti TC', serif;
+  --font-body:'Noto Sans TC', 'PingFang TC', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15121f;
+    --surface:#1f1b2e;
+    --surface-2:#282237;
+    --fg:#f3ede4;
+    --fg-muted:#b2a7c4;
+    --accent:#ff8a5c;
+    --accent-2:#7fd4c2;
+    --line: rgba(243,237,228,.14);
+    --shadow: 0 1px 0 rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15121f;
+  --surface:#1f1b2e;
+  --surface-2:#282237;
+  --fg:#f3ede4;
+  --fg-muted:#b2a7c4;
+  --accent:#ff8a5c;
+  --accent-2:#7fd4c2;
+  --line: rgba(243,237,228,.14);
+  --shadow: 0 1px 0 rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0;}
+p{margin:0;}
+button{font-family:var(--font-body); cursor:pointer;}
+.eyebrow{font-size:.72rem; letter-spacing:.14em; color:var(--fg-muted); font-weight:700;}
+#app{max-width:980px; margin:0 auto; padding-block:40px 64px;}
+.screen{display:flex; flex-direction:column; gap:28px;}
+
+/* ---------- Intro ---------- */
+#screen-intro{align-items:center; text-align:center; padding-block:48px;}
+.moon-stack{position:relative; width:120px; height:120px; margin-bottom:8px;}
+.moon-stack .orb{position:absolute; inset:0; border-radius:50%; background:var(--accent); opacity:.92;}
+.moon-stack .orb.shade{background:var(--bg); border-radius:50%; width:100%; height:100%; left:34%; opacity:1; mix-blend-mode:normal;}
+.moon-stack .ring{position:absolute; inset:-14px; border-radius:50%; border:1px dashed var(--line);}
+#screen-intro h1{font-size:clamp(2.4rem,6vw,3.4rem); font-weight:900; letter-spacing:.02em;}
+.tagline{font-size:1.05rem; color:var(--fg-muted); max-width:34em;}
+.lore{max-width:36em; font-size:.98rem; line-height:1.9; color:var(--fg); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px 26px; position:relative;}
+.lore::before{content:"世界觀"; position:absolute; top:-11px; left:20px; background:var(--bg); padding:0 8px; font-size:.68rem; letter-spacing:.12em; color:var(--accent); font-weight:700;}
+.warn-note{max-width:36em; font-size:.8rem; line-height:1.7; color:var(--fg-muted); border-left:2px solid var(--line); padding-left:14px; text-align:left;}
+.replay-note{font-size:.82rem; color:var(--fg-muted);}
+.btn-primary{
+  background:var(--accent); color:#fff8f3; border:none; border-radius:999px;
+  padding:16px 38px; font-size:1.05rem; font-weight:700; letter-spacing:.02em;
+  box-shadow:0 10px 24px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+  transition:transform .15s ease;
+}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-primary:active{transform:translateY(0);}
+@media (prefers-reduced-motion: reduce){ .btn-primary{transition:none;} }
+
+/* ---------- Story screen ---------- */
+#screen-story{gap:20px;}
+.stat-row{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{
+  background:var(--surface); border:1px solid var(--line); border-radius:999px;
+  padding:7px 14px; font-size:.82rem; color:var(--fg-muted); display:flex; gap:6px; align-items:baseline;
+  min-width:0;
+}
+.chip b{color:var(--fg); font-weight:700; font-family:var(--font-display);}
+
+.story-layout{display:grid; grid-template-columns:120px minmax(0,1fr); gap:28px; align-items:start;}
+@media (max-width:640px){ .story-layout{grid-template-columns:1fr;} }
+
+.rail{position:sticky; top:16px; display:flex; flex-direction:row; gap:10px; justify-content:space-between;}
+@media (max-width:640px){ .rail{position:static; flex-direction:row; order:-1;} }
+.rail-item{display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; min-width:0;}
+.rail-moon{width:30px; height:30px; border-radius:50%; border:2px solid var(--line); background:var(--surface); position:relative; flex-shrink:0;}
+.rail-moon .fill{position:absolute; inset:2px; border-radius:50%; background:var(--accent); transform:scale(0); transition:transform .35s ease;}
+.rail-item.active .rail-moon{border-color:var(--accent);}
+.rail-item.active .rail-moon .fill{transform:scale(1);}
+.rail-item.done .rail-moon{border-color:var(--accent-2); background:var(--accent-2);}
+.rail-label{font-size:.68rem; color:var(--fg-muted); text-align:center; letter-spacing:.04em;}
+.rail-item.active .rail-label{color:var(--fg); font-weight:700;}
+
+.controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.ctl-btn{
+  background:var(--surface); border:1px solid var(--line); color:var(--fg);
+  border-radius:8px; padding:7px 12px; font-size:.8rem; font-weight:600;
+}
+.ctl-btn.on{border-color:var(--accent); color:var(--accent);}
+.ctl-group{display:flex; gap:4px; background:var(--surface-2); padding:4px; border-radius:10px;}
+.ctl-group .ctl-btn{background:transparent; border:none; padding:6px 10px;}
+.ctl-group .ctl-btn.on{background:var(--surface); box-shadow:var(--shadow);}
+.spacer{flex:1;}
+
+.feed{
+  background:var(--surface); border:1px solid var(--line); border-radius:6px;
+  padding:26px clamp(16px,4vw,32px); min-height:260px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.divider{
+  display:flex; align-items:center; gap:12px; margin:10px 0 2px;
+  font-family:var(--font-display); font-weight:700; color:var(--accent); font-size:.95rem;
+}
+.divider::after{content:""; flex:1; height:1px; background:var(--line);}
+.entry{display:flex; gap:14px; opacity:0; transform:translateY(6px); animation:entryIn .45s ease forwards;}
+@media (prefers-reduced-motion: reduce){ .entry{animation:none; opacity:1; transform:none;} }
+@keyframes entryIn{to{opacity:1; transform:translateY(0);}}
+.entry .label{
+  flex-shrink:0; width:64px; text-align:right; font-size:.72rem; color:var(--fg-muted);
+  font-variant-numeric:tabular-nums; padding-top:3px; line-height:1.4;
+}
+.entry.origin .label{color:var(--accent-2); font-weight:700;}
+.entry.origin .text{font-style:italic;}
+.entry.pain .label{color:var(--accent);}
+.entry .text{line-height:1.85; font-size:.98rem;}
+
+/* ---------- Ending ---------- */
+#screen-ending{align-items:stretch;}
+.end-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+  padding:clamp(24px,5vw,44px); text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center;
+}
+.end-eyebrow{font-size:.78rem; letter-spacing:.16em; color:var(--fg-muted); font-weight:700;}
+.end-title{font-size:clamp(2rem,5vw,2.8rem); font-weight:900; color:var(--accent);}
+.end-desc{max-width:32em; color:var(--fg); line-height:1.9; font-size:1rem;}
+.end-stats{
+  width:100%; display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-top:8px;
+}
+.end-stat{background:var(--surface); padding:16px 10px; display:flex; flex-direction:column; gap:4px; min-width:0;}
+.end-stats > *:last-child:nth-child(odd){grid-column:1/-1;}
+.end-stat .k{font-size:.68rem; color:var(--fg-muted); letter-spacing:.06em;}
+.end-stat .v{font-family:var(--font-display); font-weight:700; font-size:1.05rem; overflow-wrap:anywhere;}
+.end-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+.btn-ghost{
+  background:transparent; border:1px solid var(--line); color:var(--fg);
+  border-radius:999px; padding:12px 24px; font-size:.92rem; font-weight:600;
+}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent);}
+.toast{
+  position:fixed; left:50%; bottom:max(24px, env(safe-area-inset-bottom,0px)); transform:translate(-50%,12px);
+  background:var(--fg); color:var(--bg); padding:10px 18px; border-radius:999px; font-size:.84rem;
+  opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:20;
+}
+.toast.show{opacity:1; transform:translate(-50%,0);}
+
+[hidden]{display:none!important;}
+</style>
+
+<div id="app">
+
+  <section id="screen-intro" class="screen">
+    <div class="moon-stack" aria-hidden="true">
+      <div class="ring"></div>
+      <div class="orb"></div>
+      <div class="orb shade"></div>
+    </div>
+    <span class="eyebrow">十月懷胎・男身版</span>
+    <h1>孕夫日記</h1>
+    <p class="tagline">世上每一百個男人，就有一個會親身走過這十個月——疼痛、驚慌、狂喜，一樣都少不了。這一次，輪到你了。</p>
+    <p class="lore">在這個世界，每一百位男性裡，就有一位帶著「孕夫」體質——終其一生，會懷胎一次，誕下一個或不只一個新生命。沒有人知道自己是不是那百中選一的人，直到某個尋常的夜晚之後，驗孕棒上出現那兩條線。</p>
+    <p class="warn-note">本遊戲涉及懷孕、生產過程的真實生理細節（害喜、陣痛、產後等）與親密情節的委婉描寫，內容走向較為寫實與沉重。</p>
+    <button class="btn-primary" id="btn-start">成為那百中選一的人</button>
+    <p class="replay-note" id="replay-note"></p>
+  </section>
+
+  <section id="screen-story" class="screen" hidden>
+    <div class="stat-row" id="stat-row"></div>
+    <div class="story-layout">
+      <div class="rail" id="rail"></div>
+      <div>
+        <div class="controls">
+          <button class="ctl-btn" id="btn-pause">暫停</button>
+          <div class="ctl-group" id="speed-group">
+            <button class="ctl-btn on" data-speed="1">1x</button>
+            <button class="ctl-btn" data-speed="1.6">1.6x</button>
+            <button class="ctl-btn" data-speed="3">3x</button>
+          </div>
+          <div class="spacer"></div>
+          <button class="ctl-btn" id="btn-skip">跳到最後</button>
+        </div>
+        <div class="feed" id="feed"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-ending" class="screen" hidden>
+    <div class="end-card">
+      <span class="end-eyebrow">此生稱號</span>
+      <h2 class="end-title" id="end-title"></h2>
+      <p class="end-desc" id="end-desc"></p>
+      <div class="end-stats" id="end-stats"></div>
+      <div class="end-actions">
+        <button class="btn-primary" id="btn-replay">再懷一次</button>
+        <button class="btn-ghost" id="btn-copy">複製我的這一生</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- data pools ----------
+  var OCCUPATIONS = ["軟體工程師","咖啡師","國小老師","保全員","外送員","樂團鼓手","獸醫師","業務經理","主廚","自由接案設計師"];
+  var PARTNER_NAMES = ["小曦","阿凱","子謙","雨桐","阿軒","芯語","柏宇","若蘭","承恩","語彤"];
+  var PARTNER_TRAITS = [
+    "嘴上念個不停、事事都替你安排好的",
+    "冷靜到有點可怕的",
+    "比你還緊張兮兮的",
+    "動不動就放閃放到你尷尬的",
+    "工作再忙也從不缺席產檢的",
+    "已經開始偷偷寫「代理孕夫觀察日記」的",
+    "什麼忙都幫不上、但很會道歉的",
+    "把你的產檢時間記得比自己生日還熟的"
+  ];
+  var NICKNAMES = ["豆子","糰子","荳荳","小饅頭","栗子","麻糬","小籠包","奇異果","核桃","湯圓"];
+  var SEVERITY = [
+    {label:"幾乎無感", text:"孕吐幾乎沒找上你，你甚至懷疑自己是不是搞錯了什麼。"},
+    {label:"輕微", text:"偶爾聞到油煙味會反胃，但大致上風平浪靜。"},
+    {label:"中等", text:"你和馬桶培養出了革命情感，一天要報到兩三次。"},
+    {label:"嚴重", text:"吐到連喝水都會吐，{partner}開始隨身帶著塑膠袋跟著你。"},
+    {label:"地獄等級", text:"吐到進了急診室打點滴，醫生說這叫「妊娠劧吐」，你說這叫「地獄」。"}
+  ];
+  var BIRTH_TIMING = ["提早了11天","提早了3天","準時報到","晚了6天才肯出來","晚了13天，讓全家人等到心慌"];
+  var BABY_COUNT_LABEL = {1:"單胎", 2:"雙胞胎", 3:"三胞胎", 4:"四胞胎"};
+
+  var ENDINGS = [
+    {title:"淡定奶爸", desc:"陣痛從頭到尾，你只皺了三次眉，連護理師都說你可能是在場最冷靜的產婦。"},
+    {title:"地獄孕夫", desc:"十個月吐到懷疑人生，但你撐過來了——而且胖的八公斤，幾乎全長在臉上。"},
+    {title:"職場傳奇", desc:"一邊開會一邊請假產檢，{occupation}的同事至今仍在流傳你的時間管理神話。"},
+    {title:"廚房奶爸", desc:"為了應付半夜各種古怪食慾，你練出一手好廚藝，{nickname}還沒出生就吃遍你做的十道菜。"},
+    {title:"淚腺崩壞獎", desc:"從超音波心跳聲到第一聲啼哭，你哭了不下二十次，{partner}說你比孕婦還愛哭。"},
+    {title:"百中選一", desc:"一百個人裡，只有你把這場意外活成了一趟冒險，而且全程清醒著走完。"},
+    {title:"待產包達人", desc:"你的待產包準備了三個版本，清單細到連指甲剪的尺寸都寫得明明白白。"},
+    {title:"新手爸爸", desc:"手忙腳亂，但你牢牢抱緊了{nickname}——這一刻，比任何稱號都真實。"}
+  ];
+  var MULTI_ENDINGS = {
+    2: {title:"雙喜臨門", desc:"兩個娃一起報到，你的產檢紀錄比別人厚了一倍，心跳聲也是。"},
+    3: {title:"福星高照", desc:"三個娃同時報到，醫生說這機率比中統一發票特獎還低，你笑著說早知道該順便簽張樂透。"},
+    4: {title:"傳奇現場", desc:"四胞胎，產房外排了整整一條走廊的親戚，你一夜之間成了全院的傳奇人物。"}
+  };
+
+  // ---------- Trimester 1 (第 1–13 週) ----------
+  var T1 = [
+    function(s){ return "你站在藥局自助驗孕棒前，反覆確認那兩條線沒有看錯，心跳比平常快了兩倍。"; },
+    function(s){ return "開會開到一半，你忽然一陣翻騰衝出會議室，"+s.occupation+"同事面面相覷，以為你昨晚喝多了。"; },
+    function(s){ return "你把這件事告訴"+s.partner+"。他愣住三秒，然後緊緊抱住你，你聽見他說：「我們，要當爸爸了。」"; },
+    function(s){ return "你爸在電話那頭沉默了很久，最後只問了一句：「……那你以後拜拜還要不要跪？」"; },
+    function(s){ return "凌晨三點，你突然很想吃麻辣鍋配珍珠奶茶，"+s.partner+"睡眼惺忪地翻起外套就出門。"; },
+    function(s){ return "你去藥局買葉酸，店員多看了你的肚子一眼，你若無其事地把帽子壓得更低了一點。"; },
+    function(s){ return "褲頭開始有點緊，"+s.nicknameList+"現在只有一顆葡萄大小，腰圍卻已經先抗議了。"; },
+    function(s){ return "你把這件事告訴最熟的朋友，對方沉默兩秒，傳來一句：「……所以你是認真的？」"; },
+    function(s){ return "下腹一陣一陣抽痛，悶悶地像經痛，你下意識想去拿止痛藥，才想起自己早就不會「那個」了。"; },
+    function(s){ return "你的嗅覺突然變得異常靈敏，連"+s.partner+"洗髮精的味道都讓你反胃，他只好偷偷把洗髮精換了一瓶。"; },
+    function(s){ return "荷爾蒙翻騰得厲害，你對親密這件事提不起一點興致，倒頭就睡，"+s.partner+"只是摸摸你的頭，沒多說什麼。"; },
+    function(s){ return "你半夜爬起來查資料，查到一半突然很想哭——不是難過，是突然意識到自己真的要為另一個生命負責了。"; },
+    function(s){ return "你第一次把手放在"+s.partner+"的手背上，一起感受那個還只有米粒大小的存在，誰都沒說話，但眼眶都紅了。"; }
+  ];
+  function originText(s){
+    return "那一夜，你和"+s.partner+"靠得很近，城市的燈火隔著窗簾滲進來，誰都沒料到，這個再平常不過的夜晚，會悄悄種下一個新的生命。";
+  }
+  function revealText(s){
+    if(s.babyCount===1){
+      return "醫生指著螢幕上一個閃爍的光點：「心跳很穩，118下，恭喜你，準爸爸。」你盯著那個光點，一句話也說不出來。";
+    } else if(s.babyCount===2){
+      return "醫生的探頭在你肚子上移動了很久，突然停住，皺眉又瞇眼看了半天，才慢慢開口：「……你們家，不只一個。」螢幕上，兩個小光點並排閃爍著。";
+    } else if(s.babyCount===3){
+      return "醫生數了三次心跳的數字，最後放下探頭，深吸一口氣：「三個。你肚子裡，一次來了三個。」診間瞬間安靜得能聽見你自己的心跳聲。";
+    }
+    return "醫生盯著螢幕足足愣了十秒，轉頭喊了隔壁診間的同事進來『確認』，兩個人一起數了四次，才敢在病歷上寫下『4』這個數字。";
+  }
+
+  // ---------- Trimester 2 (第 14–27 週) ----------
+  var T2 = [
+    function(s){ return "肚子終於有了明顯弧度，你第一次側身照鏡子，自己都愣住了。"; },
+    function(s){ return "主管把你調去內勤，你嘴上說「我還能衝」，心裡卻鬆了一大口氣。"; },
+    function(s){ return "半夜一陣輕輕的震動把你驚醒，你搖醒"+s.partner+"：「他剛剛，踢我了！」"; },
+    function(s){ return "產檢時醫生把性別寫在紙上封進信封，你和"+s.partner+"說好了，要回家一起拆。"; },
+    function(s){ return "你們在嬰兒用品店待了快三小時，最後只帶走一雙小到不可思議的襪子。"; },
+    function(s){ return "老朋友約吃飯，看到你的肚子，筷子「啪」地掉在桌上：「你不是在開玩笑吧！？」"; },
+    function(s){ return "你和"+s.partner+"為了"+s.nicknameList+"以後的大名吵了整整一晚，最後決定還是先叫"+s.nicknameList+"就好。"; },
+    function(s){ return "彎腰綁鞋帶變成一項極限運動，你第一次體會「看得到摸不到」是什麼感覺。"; },
+    function(s){ return "你開始半夜抽筋，"+s.partner+"睡眼惺忪地幫你壓腿，嘴裡念著「早點睡會怎樣」。"; },
+    function(s){ return "你在辦公室偷偷把外套墊在椅背上當腰靠，"+s.occupation+"的座位第一次比健身教練椅還講究。"; },
+    function(s){ return "一股電流從腰際竄到腿後，你整個人僵在原地——"+s.partner+"說這叫坐骨神經痛，叫你別再逞強搬東西。"; },
+    function(s){ return "肚子突然繃緊，硬得像石頭，持續了快一分鐘才鬆開，你嚇得打給"+s.partner+"，護理師在電話那頭笑說這只是「練習」。"; },
+    function(s){ return "你盯著鏡子裡越來越陌生的身體線條，忽然很想念從前那個隨便套件衣服就出門的自己。"; },
+    function(s){ return s.partner+"把頭靠在你肚子上說故事給"+s.nicknameList+"聽，你低頭看著那個畫面，覺得這大概是你這輩子最安靜的時刻。"; },
+    function(s){ return "你的肚臍一天比一天往外凸，腰線早就消失得一乾二淨，"+s.partner+"忍不住伸手摸了摸，說這手感像顆快撐破的氣球。"; },
+    function(s){ return "妊娠紋悄悄爬滿你的肚皮，像一張逐漸展開的地圖，你盯著鏡子，說不上討厭，倒覺得有點像勳章。"; },
+    function(s){ return "進入這個月，你對"+s.partner+"的渴望出乎意料地強烈，兩人在沙發上纏綿了好一陣子，肚子裡的"+s.nicknameList+"卻挑這時候踢了一腳，兩人都笑了出來。"; }
+  ];
+  function t2MultiExtra(s){
+    return "醫生說多胞胎的肚子比一般人大得快，你這個月的腰圍，已經追上別人足月時的大小。";
+  }
+
+  // ---------- Trimester 3 (第 28–40 週) ----------
+  var T3_CORE = [
+    function(s){ return "肚子大到你已經很久沒看過自己的腳尖，連穿鞋都要靠"+s.partner+"幫忙。"; },
+    function(s){ return "你莫名其妙開始整理衣櫃、消毒奶瓶，"+s.partner+"說你最近「媽味」很重。"; },
+    function(s){ return "半夜睡不著，腦子裡轉著各種念頭：會不會來不及到醫院、會不會真的很痛、自己到底準備好了沒。"; },
+    function(s){ return "產前教育課上，你努力跟著老師練習呼吸法，旁邊的太太們都忍不住偷瞄這位「特例」。"; },
+    function(s){ return "你以為陣痛開始了，衝去醫院結果只是脹氣，醫生笑著請你回家躺平休息。"; },
+    function(s){ return "待產包你收了又拆、拆了又收，最後裡面躺著三件同款的嬰兒包巾。"; },
+    function(s){ return "你的腳踝腫得連拖鞋都穿不下，"+s.partner+"蹲在地上幫你按摩，嘴裡念著「早跟你說少吃鹹的」。"; },
+    function(s){ return "你整夜翻來覆去找不到一個舒服的姿勢，最後乾脆坐在客廳的沙發上，看著窗外天一點一點亮起來。"; },
+    function(s){ return "翻身下床變成一項精密工程，恥骨那一陣尖銳的痛，讓你每天早上都要先深呼吸三次才敢起身。"; },
+    function(s){ return "肚皮緊繃到發亮，肚臍完全外翻，你知道，離"+s.nicknameList+"出來的日子，真的不剩幾天了。"; },
+    function(s){ return "肚子大到連親密都變成一項技術活，你和"+s.partner+"試了幾種姿勢都以失敗告終，最後兩人乾脆抱在一起笑成一團。"; }
+  ];
+  function t3MultiExtra(s){
+    return "多胞胎的你被醫生要求提前安胎臥床，你第一次覺得「乖乖躺著」也是一種體力活。";
+  }
+  function t3Tail(s){
+    var cry, hold;
+    if(s.babyCount===1){
+      cry = "產房裡你用盡全身力氣，聽見的第一聲啼哭，比你想像中更響亮、更真實。";
+      hold = "護理師把"+s.nicknameList+"放進你懷裡的那一刻，你忘記了所有的痛，只記得這個溫暖的重量。";
+    } else if(s.babyCount===2){
+      cry = "產房裡你用盡全身力氣，兩聲幾乎疊在一起的啼哭，幾乎同時劈開了寂靜。";
+      hold = "護理師一左一右把"+s.nicknameList+"放進你懷裡，你的手忙著分不出該先抱緊哪一個，眼淚卻先一步掉了下來。";
+    } else {
+      cry = "產房裡你用盡全身力氣，一聲接一聲的啼哭接連響起，一聲比一聲更響，醫護人員的歡呼聲幾乎蓋不過去。";
+      hold = "護理師一個接一個把"+s.nicknameList+"放進你懷裡，你的雙臂根本不夠用，只能笑著求"+s.partner+"快點過來幫忙。";
+    }
+    return [
+      {label:"第38週", text:"凌晨三點，一陣劇痛像被人從內部擰緊，你痛到說不出話，"+s.partner+"比你還慌，抓著待產包就往外衝。", pain:true},
+      {label:"即將臨盆", text:"宮縮一波接一波逼近，一次比一次凶猛，你抓著床欄指節發白，助產士在耳邊喊著「深呼吸，跟著我數」，你早已聽不清她數到哪裡。", pain:true},
+      {label:"產房", text:cry, pain:true},
+      {label:"初見", text:hold}
+    ];
+  }
+
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  function weightedPick(items){
+    var total = 0;
+    for(var i=0;i<items.length;i++){ total += items[i].w; }
+    var r = Math.random()*total;
+    for(var j=0;j<items.length;j++){
+      r -= items[j].w;
+      if(r <= 0) return items[j].value;
+    }
+    return items[items.length-1].value;
+  }
+  function sortedWeeks(count, min, max){
+    var set = new Set();
+    while(set.size < count){ set.add(min + Math.floor(Math.random()*(max-min+1))); }
+    return Array.from(set).sort(function(a,b){return a-b;});
+  }
+  function fillTpl(str, s){
+    return str
+      .replace(/\{partner\}/g, s.partner)
+      .replace(/\{nickname\}/g, s.nicknameList)
+      .replace(/\{occupation\}/g, s.occupation);
+  }
+
+  // ---------- state ----------
+  var state = null;
+  var queue = [];
+  var qIndex = 0;
+  var speed = 1;
+  var paused = false;
+  var timer = null;
+
+  function buildState(){
+    var severityIdx = Math.floor(Math.random()*SEVERITY.length);
+    var babyCount = weightedPick([{value:1,w:3},{value:2,w:7},{value:3,w:20},{value:4,w:70}]);
+    var babyNicknames = shuffle(NICKNAMES).slice(0, babyCount);
+    return {
+      occupation: pick(OCCUPATIONS),
+      partner: pick(PARTNER_NAMES),
+      partnerTrait: pick(PARTNER_TRAITS),
+      babyCount: babyCount,
+      babyNicknames: babyNicknames,
+      nicknameList: babyNicknames.join("、"),
+      severityIdx: severityIdx,
+      severity: SEVERITY[severityIdx],
+      weightGain: (6 + Math.floor(Math.random()*9)) + (babyCount-1)*3,
+      birthTiming: pick(BIRTH_TIMING)
+    };
+  }
+
+  function pickEnding(s){
+    var pool = ENDINGS.slice();
+    if(s.babyCount > 1 && MULTI_ENDINGS[s.babyCount]){
+      pool.push(MULTI_ENDINGS[s.babyCount]);
+      pool.push(MULTI_ENDINGS[s.babyCount]);
+    }
+    return pick(pool);
+  }
+
+  function buildQueue(s){
+    var q = [];
+
+    q.push({special:true, label:"那一夜", text: originText(s)});
+
+    // Trimester 1
+    q.push({divider:"孕期一　第 1–13 週"});
+    var t1pool = shuffle(T1).slice(0, 5).map(function(fn){ return fn(s); });
+    var nauseaText = fillTpl(s.severity.text, s);
+    t1pool.splice(Math.min(3, t1pool.length), 0, nauseaText);
+    var w1 = sortedWeeks(t1pool.length, 3, 10);
+    for(var i=0;i<t1pool.length;i++){
+      q.push({label:"第"+w1[i]+"週", text:t1pool[i], pain: t1pool[i]===nauseaText});
+    }
+    q.push({label:"第12週", text:revealText(s)});
+
+    // Trimester 2
+    q.push({divider:"孕期二　第 14–27 週"});
+    var t2src = T2.slice();
+    if(s.babyCount > 1){ t2src.push(t2MultiExtra); }
+    var t2pool = shuffle(t2src).slice(0, 6).map(function(fn){ return fn(s); });
+    var w2 = sortedWeeks(t2pool.length, 14, 27);
+    for(var j=0;j<t2pool.length;j++){ q.push({label:"第"+w2[j]+"週", text:t2pool[j]}); }
+
+    // Trimester 3
+    q.push({divider:"孕期三　第 28–40 週"});
+    var t3src = T3_CORE.slice();
+    if(s.babyCount > 1){ t3src.push(t3MultiExtra); }
+    var t3core = shuffle(t3src).slice(0, 5).map(function(fn){ return fn(s); });
+    var w3 = sortedWeeks(t3core.length, 28, 36);
+    for(var k=0;k<t3core.length;k++){
+      q.push({label:"第"+w3[k]+"週", text:t3core[k]});
+    }
+    var tail = t3Tail(s);
+    for(var m=0;m<tail.length;m++){ q.push(tail[m]); }
+
+    return q;
+  }
+
+  // ---------- rendering ----------
+  var feedEl = document.getElementById("feed");
+  var railEl = document.getElementById("rail");
+  var statRowEl = document.getElementById("stat-row");
+
+  function renderStats(s){
+    statRowEl.innerHTML =
+      '<span class="chip">職業　<b>'+s.occupation+'</b></span>'+
+      '<span class="chip">伴侶　<b>'+s.partner+'</b>・'+s.partnerTrait+'</span>'+
+      '<span class="chip">懷了　<b>'+BABY_COUNT_LABEL[s.babyCount]+'</b></span>'+
+      '<span class="chip">寶寶暱稱　<b>'+s.nicknameList+'</b></span>'+
+      '<span class="chip">害喜程度　<b>'+s.severity.label+'</b></span>';
+  }
+
+  var RAIL_LABELS = ["孕期一","孕期二","孕期三"];
+  function renderRail(activeIdx){
+    railEl.innerHTML = "";
+    for(var i=0;i<3;i++){
+      var item = document.createElement("div");
+      item.className = "rail-item" + (i<activeIdx ? " done" : "") + (i===activeIdx ? " active" : "");
+      item.innerHTML = '<div class="rail-moon"><div class="fill"></div></div><div class="rail-label">'+RAIL_LABELS[i]+'</div>';
+      railEl.appendChild(item);
+    }
+  }
+
+  var dividerCount = -1;
+  function appendEntry(item){
+    if(item.divider){
+      dividerCount++;
+      renderRail(dividerCount);
+      var d = document.createElement("div");
+      d.className = "divider";
+      d.textContent = item.divider;
+      feedEl.appendChild(d);
+    } else {
+      var e = document.createElement("div");
+      e.className = "entry" + (item.special ? " origin" : "") + (item.pain ? " pain" : "");
+      e.innerHTML = '<div class="label">'+item.label+'</div><div class="text">'+item.text+'</div>';
+      feedEl.appendChild(e);
+    }
+    feedEl.scrollTop = feedEl.scrollHeight;
+  }
+
+  function stepDelay(text){
+    var base = 420 + (text ? text.length * 42 : 300);
+    return base / speed;
+  }
+
+  function scheduleNext(){
+    if(paused) return;
+    if(qIndex >= queue.length){ goEnding(); return; }
+    var item = queue[qIndex];
+    appendEntry(item);
+    qIndex++;
+    timer = setTimeout(scheduleNext, stepDelay(item.text));
+  }
+
+  function skipToEnd(){
+    clearTimeout(timer);
+    while(qIndex < queue.length){
+      appendEntry(queue[qIndex]);
+      qIndex++;
+    }
+    goEnding();
+  }
+
+  // ---------- screens ----------
+  var screenIntro = document.getElementById("screen-intro");
+  var screenStory = document.getElementById("screen-story");
+  var screenEnding = document.getElementById("screen-ending");
+
+  function goStory(){
+    state = buildState();
+    queue = buildQueue(state);
+    qIndex = 0;
+    dividerCount = -1;
+    feedEl.innerHTML = "";
+    renderStats(state);
+    renderRail(0);
+    screenIntro.hidden = true;
+    screenEnding.hidden = true;
+    screenStory.hidden = false;
+    paused = false;
+    document.getElementById("btn-pause").textContent = "暫停";
+    scheduleNext();
+  }
+
+  function goEnding(){
+    screenStory.hidden = true;
+    screenEnding.hidden = false;
+    var ending = pickEnding(state);
+    state.ending = ending;
+    document.getElementById("end-title").textContent = ending.title;
+    document.getElementById("end-desc").textContent = fillTpl(ending.desc, state);
+    var stats = [
+      ["職業", state.occupation],
+      ["伴侶", state.partner],
+      ["懷胎數", BABY_COUNT_LABEL[state.babyCount]],
+      ["寶寶暱稱", state.nicknameList],
+      ["害喜巔峰", state.severity.label],
+      ["孕期增重", state.weightGain+" 公斤"],
+      ["預產期", state.birthTiming]
+    ];
+    var html = "";
+    for(var i=0;i<stats.length;i++){
+      html += '<div class="end-stat"><div class="k">'+stats[i][0]+'</div><div class="v">'+stats[i][1]+'</div></div>';
+    }
+    document.getElementById("end-stats").innerHTML = html;
+    bumpReplayCount();
+  }
+
+  // ---------- replay counter (local only) ----------
+  function getReplayCount(){
+    try{
+      return parseInt(localStorage.getItem("pf_play_count") || "0", 10);
+    }catch(e){ return 0; }
+  }
+  function bumpReplayCount(){
+    try{
+      var n = getReplayCount() + 1;
+      localStorage.setItem("pf_play_count", String(n));
+    }catch(e){ /* storage unavailable, skip */ }
+  }
+  function setReplayNote(){
+    var n = getReplayCount();
+    var note = document.getElementById("replay-note");
+    note.textContent = n > 0 ? "這是你第 "+(n+1)+" 次，成為那百中選一的人。" : "";
+  }
+
+  // ---------- controls ----------
+  document.getElementById("btn-start").addEventListener("click", goStory);
+  document.getElementById("btn-replay").addEventListener("click", goStory);
+  document.getElementById("btn-skip").addEventListener("click", skipToEnd);
+
+  document.getElementById("btn-pause").addEventListener("click", function(){
+    paused = !paused;
+    this.textContent = paused ? "繼續" : "暫停";
+    this.classList.toggle("on", paused);
+    if(!paused){ clearTimeout(timer); scheduleNext(); }
+    else { clearTimeout(timer); }
+  });
+
+  document.getElementById("speed-group").addEventListener("click", function(ev){
+    var btn = ev.target.closest("[data-speed]");
+    if(!btn) return;
+    speed = parseFloat(btn.getAttribute("data-speed"));
+    var all = this.querySelectorAll(".ctl-btn");
+    for(var i=0;i<all.length;i++){ all[i].classList.remove("on"); }
+    btn.classList.add("on");
+  });
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  document.getElementById("btn-copy").addEventListener("click", function(){
+    if(!state || !state.ending) return;
+    var lines = [
+      "《孕夫日記》— 我的這一生",
+      "稱號：「"+state.ending.title+"」",
+      fillTpl(state.ending.desc, state),
+      "",
+      "職業："+state.occupation,
+      "伴侶："+state.partner,
+      "懷胎數："+BABY_COUNT_LABEL[state.babyCount],
+      "寶寶暱稱："+state.nicknameList,
+      "害喜巔峰："+state.severity.label,
+      "孕期增重："+state.weightGain+" 公斤",
+      "預產期："+state.birthTiming
+    ].join("\n");
+
+    function fallbackCopy(text){
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+      document.body.removeChild(ta);
+      showToast(ok ? "已複製到剪貼簿" : "複製失敗，請手動選取文字");
+    }
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(lines).then(function(){
+        showToast("已複製到剪貼簿");
+      }).catch(function(){ fallbackCopy(lines); });
+    } else {
+      fallbackCopy(lines);
+    }
+  });
+
+  setReplayNote();
+})();
+</script>
