@@ -1,3 +1,5 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>孕夫日記</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -43,17 +45,19 @@
   --shadow: 0 1px 0 rgba(0,0,0,.35);
   color-scheme: dark;
 }
-*{box-sizing:border-box;}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
 body{
   background:var(--bg);
   color:var(--fg);
   font-family:var(--font-body);
   padding-left:max(16px, env(safe-area-inset-left,0px));
   padding-right:max(16px, env(safe-area-inset-right,0px));
+  overflow-x:hidden;
 }
 h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0;}
 p{margin:0;}
-button{font-family:var(--font-body); cursor:pointer;}
+button{font-family:var(--font-body); cursor:pointer; -webkit-tap-highlight-color:transparent;}
 .eyebrow{font-size:.72rem; letter-spacing:.14em; color:var(--fg-muted); font-weight:700;}
 #app{max-width:980px; margin:0 auto; padding-block:40px 64px;}
 .screen{display:flex; flex-direction:column; gap:28px;}
@@ -64,17 +68,19 @@ button{font-family:var(--font-body); cursor:pointer;}
 .moon-stack .orb{position:absolute; inset:0; border-radius:50%; background:var(--accent); opacity:.92;}
 .moon-stack .orb.shade{background:var(--bg); border-radius:50%; width:100%; height:100%; left:34%; opacity:1; mix-blend-mode:normal;}
 .moon-stack .ring{position:absolute; inset:-14px; border-radius:50%; border:1px dashed var(--line);}
-#screen-intro h1{font-size:clamp(2.4rem,6vw,3.4rem); font-weight:900; letter-spacing:.02em;}
-.tagline{font-size:1.05rem; color:var(--fg-muted); max-width:34em;}
-.lore{max-width:36em; font-size:.98rem; line-height:1.9; color:var(--fg); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px 26px; position:relative;}
+#screen-intro h1{font-size:clamp(2.2rem,8vw,3.4rem); font-weight:900; letter-spacing:.02em;}
+.tagline{font-size:1.02rem; color:var(--fg-muted); max-width:34em;}
+.lore{max-width:36em; font-size:.96rem; line-height:1.9; color:var(--fg); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px 22px; position:relative;}
 .lore::before{content:"世界觀"; position:absolute; top:-11px; left:20px; background:var(--bg); padding:0 8px; font-size:.68rem; letter-spacing:.12em; color:var(--accent); font-weight:700;}
 .warn-note{max-width:36em; font-size:.8rem; line-height:1.7; color:var(--fg-muted); border-left:2px solid var(--line); padding-left:14px; text-align:left;}
+.mode-note{max-width:36em; font-size:.82rem; line-height:1.8; color:var(--accent-2); border:1px dashed var(--line); border-radius:8px; padding:12px 16px; text-align:left;}
 .replay-note{font-size:.82rem; color:var(--fg-muted);}
 .btn-primary{
   background:var(--accent); color:#fff8f3; border:none; border-radius:999px;
   padding:16px 38px; font-size:1.05rem; font-weight:700; letter-spacing:.02em;
   box-shadow:0 10px 24px -10px color-mix(in srgb, var(--accent) 70%, transparent);
   transition:transform .15s ease;
+  min-height:52px;
 }
 .btn-primary:hover{transform:translateY(-2px);}
 .btn-primary:active{transform:translateY(0);}
@@ -82,10 +88,10 @@ button{font-family:var(--font-body); cursor:pointer;}
 
 /* ---------- Story screen ---------- */
 #screen-story{gap:20px;}
-.stat-row{display:flex; flex-wrap:wrap; gap:10px;}
+.stat-row{display:flex; flex-wrap:wrap; gap:8px;}
 .chip{
   background:var(--surface); border:1px solid var(--line); border-radius:999px;
-  padding:7px 14px; font-size:.82rem; color:var(--fg-muted); display:flex; gap:6px; align-items:baseline;
+  padding:7px 14px; font-size:.78rem; color:var(--fg-muted); display:flex; gap:6px; align-items:baseline;
   min-width:0;
 }
 .chip b{color:var(--fg); font-weight:700; font-family:var(--font-display);}
@@ -107,17 +113,22 @@ button{font-family:var(--font-body); cursor:pointer;}
 .controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
 .ctl-btn{
   background:var(--surface); border:1px solid var(--line); color:var(--fg);
-  border-radius:8px; padding:7px 12px; font-size:.8rem; font-weight:600;
+  border-radius:8px; padding:9px 13px; font-size:.8rem; font-weight:600;
+  min-height:40px;
 }
 .ctl-btn.on{border-color:var(--accent); color:var(--accent);}
 .ctl-group{display:flex; gap:4px; background:var(--surface-2); padding:4px; border-radius:10px;}
-.ctl-group .ctl-btn{background:transparent; border:none; padding:6px 10px;}
+.ctl-group .ctl-btn{background:transparent; border:none; padding:7px 11px; min-height:34px;}
 .ctl-group .ctl-btn.on{background:var(--surface); box-shadow:var(--shadow);}
 .spacer{flex:1;}
+@media (max-width:640px){
+  .controls{gap:6px;}
+  .spacer{flex-basis:100%; height:0;}
+}
 
 .feed{
   background:var(--surface); border:1px solid var(--line); border-radius:6px;
-  padding:26px clamp(16px,4vw,32px); min-height:260px;
+  padding:26px clamp(14px,4vw,32px); min-height:260px;
   display:flex; flex-direction:column; gap:16px;
 }
 .divider{
@@ -132,19 +143,46 @@ button{font-family:var(--font-body); cursor:pointer;}
   flex-shrink:0; width:64px; text-align:right; font-size:.72rem; color:var(--fg-muted);
   font-variant-numeric:tabular-nums; padding-top:3px; line-height:1.4;
 }
+@media (max-width:420px){
+  .entry .label{width:50px; font-size:.66rem;}
+}
 .entry.origin .label{color:var(--accent-2); font-weight:700;}
 .entry.origin .text{font-style:italic;}
 .entry.pain .label{color:var(--accent);}
+.entry.decision .label{color:var(--accent-2); font-weight:700;}
 .entry .text{line-height:1.85; font-size:.98rem;}
+
+/* ---------- Choice block ---------- */
+.choice-block{
+  display:flex; flex-direction:column; gap:12px;
+  opacity:0; transform:translateY(6px); animation:entryIn .45s ease forwards;
+  border:1px dashed var(--line); border-radius:10px; padding:16px clamp(12px,3vw,20px);
+  background:color-mix(in srgb, var(--accent) 5%, transparent);
+}
+.choice-prompt{font-size:.98rem; line-height:1.8; font-weight:700; color:var(--fg);}
+.choice-eyebrow{font-size:.68rem; letter-spacing:.12em; color:var(--accent); font-weight:700;}
+.choice-options{display:flex; flex-direction:column; gap:10px;}
+.choice-btn{
+  background:var(--surface); border:1px solid var(--line); color:var(--fg);
+  border-radius:10px; padding:14px 16px; font-size:.92rem; line-height:1.55; text-align:left;
+  min-height:48px; width:100%;
+  transition:border-color .15s ease, background .15s ease;
+}
+.choice-btn:active{border-color:var(--accent); background:var(--surface-2);}
+.choice-btn:disabled{opacity:.45;}
+.choice-btn.chosen{border-color:var(--accent); background:var(--surface-2); opacity:1; font-weight:700;}
+@media (hover:hover){
+  .choice-btn:not(:disabled):hover{border-color:var(--accent);}
+}
 
 /* ---------- Ending ---------- */
 #screen-ending{align-items:stretch;}
 .end-card{
   background:var(--surface); border:1px solid var(--line); border-radius:8px;
-  padding:clamp(24px,5vw,44px); text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center;
+  padding:clamp(22px,5vw,44px); text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center;
 }
 .end-eyebrow{font-size:.78rem; letter-spacing:.16em; color:var(--fg-muted); font-weight:700;}
-.end-title{font-size:clamp(2rem,5vw,2.8rem); font-weight:900; color:var(--accent);}
+.end-title{font-size:clamp(1.9rem,7vw,2.8rem); font-weight:900; color:var(--accent);}
 .end-desc{max-width:32em; color:var(--fg); line-height:1.9; font-size:1rem;}
 .end-stats{
   width:100%; display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
@@ -154,16 +192,22 @@ button{font-family:var(--font-body); cursor:pointer;}
 .end-stats > *:last-child:nth-child(odd){grid-column:1/-1;}
 .end-stat .k{font-size:.68rem; color:var(--fg-muted); letter-spacing:.06em;}
 .end-stat .v{font-family:var(--font-display); font-weight:700; font-size:1.05rem; overflow-wrap:anywhere;}
-.end-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+.end-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px; width:100%;}
 .btn-ghost{
   background:transparent; border:1px solid var(--line); color:var(--fg);
   border-radius:999px; padding:12px 24px; font-size:.92rem; font-weight:600;
+  min-height:48px;
 }
 .btn-ghost:hover{border-color:var(--accent); color:var(--accent);}
+@media (max-width:420px){
+  .end-actions{flex-direction:column;}
+  .end-actions > *{width:100%;}
+}
 .toast{
   position:fixed; left:50%; bottom:max(24px, env(safe-area-inset-bottom,0px)); transform:translate(-50%,12px);
   background:var(--fg); color:var(--bg); padding:10px 18px; border-radius:999px; font-size:.84rem;
   opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:20;
+  max-width:calc(100vw - 32px); text-align:center;
 }
 .toast.show{opacity:1; transform:translate(-50%,0);}
 
@@ -183,6 +227,7 @@ button{font-family:var(--font-body); cursor:pointer;}
     <p class="tagline">世上每一百個男人，就有一個會親身走過這十個月——疼痛、驚慌、狂喜，一樣都少不了。這一次，輪到你了。</p>
     <p class="lore">在這個世界，每一百位男性裡，就有一位帶著「孕夫」體質——終其一生，會懷胎一次，誕下一個或不只一個新生命。沒有人知道自己是不是那百中選一的人，直到某個尋常的夜晚之後，驗孕棒上出現那兩條線。</p>
     <p class="warn-note">本遊戲涉及懷孕、生產過程的真實生理細節（害喜、陣痛、產後等）與親密情節的委婉描寫，內容走向較為寫實與沉重。</p>
+    <p class="mode-note">旅程中會遇到 5 個關鍵抉擇，你的每個選擇都會累積成不同的性格傾向，最終決定你此生的稱號與結局。</p>
     <button class="btn-primary" id="btn-start">成為那百中選一的人</button>
     <p class="replay-note" id="replay-note"></p>
   </section>
@@ -247,7 +292,7 @@ button{font-family:var(--font-body); cursor:pointer;}
     {label:"輕微", text:"偶爾聞到油煙味會反胃，但大致上風平浪靜。"},
     {label:"中等", text:"你和馬桶培養出了革命情感，一天要報到兩三次。"},
     {label:"嚴重", text:"吐到連喝水都會吐，{partner}開始隨身帶著塑膠袋跟著你。"},
-    {label:"地獄等級", text:"吐到進了急診室打點滴，醫生說這叫「妊娠劧吐」，你說這叫「地獄」。"}
+    {label:"地獄等級", text:"吐到進了急診室打點滴，醫生說這叫「妊娠劇吐」，你說這叫「地獄」。"}
   ];
   var BIRTH_TIMING = ["提早了11天","提早了3天","準時報到","晚了6天才肯出來","晚了13天，讓全家人等到心慌"];
   var BABY_COUNT_LABEL = {1:"單胎", 2:"雙胞胎", 3:"三胞胎", 4:"四胞胎"};
@@ -267,6 +312,78 @@ button{font-family:var(--font-body); cursor:pointer;}
     3: {title:"福星高照", desc:"三個娃同時報到，醫生說這機率比中統一發票特獎還低，你笑著說早知道該順便簽張樂透。"},
     4: {title:"傳奇現場", desc:"四胞胎，產房外排了整整一條走廊的親戚，你一夜之間成了全院的傳奇人物。"}
   };
+
+  // ---------- Decision points (選項式抉擇) ----------
+  // Each option carries a `trait` tag. The dominant trait across all 5 decisions
+  // decides the ending (see pickEnding). calm/planner are offered every time so a
+  // "perfect run" (5/5) unlocks a bonus ending.
+  var DECISIONS = [
+    {
+      key:"tell",
+      label:"抉擇・發現",
+      prompt:"你盯著驗孕棒上的兩條線，久久回不了神。這個消息，你打算怎麼處理？",
+      options:[
+        {trait:"calm", label:"先把這件事收好，照常把手邊的事做完再說",
+          result:"你深吸一口氣，把驗孕棒收進包包，若無其事地回到{occupation}的日常，心裡卻像裝了一整座海。"},
+        {trait:"planner", label:"立刻翻開筆記本，列出接下來該做的所有準備事項",
+          result:"你翻出許久沒碰的筆記本，一條一條列下產檢時間、葉酸品牌、預算規劃，彷彿這樣就能抓住點什麼踏實感。"},
+        {trait:"social", label:"忍不住立刻打給{partner}，想第一時間分享這個消息",
+          result:"電話接通的瞬間，你的聲音抖得不成話，{partner}在那頭愣了足足三秒，才爆出又驚又喜的笑聲。"}
+      ]
+    },
+    {
+      key:"nausea",
+      label:"抉擇・孕吐",
+      prompt:"孕吐一波接一波來襲，你決定怎麼應付它？",
+      options:[
+        {trait:"calm", label:"放慢步調，能躺就躺，先把身體照顧好",
+          result:"你破天荒地推掉所有非必要行程，大部分時間窩在沙發上，{partner}笑說你終於學會對自己好一點。"},
+        {trait:"planner", label:"上網做足功課，研究哪些食物、穴道能緩解孕吐",
+          result:"你的瀏覽器分頁開滿了「孕吐緩解秘方」，薑茶、P6穴道按摩輪流上陣，筆記寫得比當年考試還認真。"},
+        {trait:"emotional", label:"忍不住在{partner}面前崩潰大哭，說自己撐不下去了",
+          result:"你蹲在廁所門口哭到停不下來，{partner}手足無措地抱著你，只能一句一句說「辛苦你了，辛苦你了」。"}
+      ]
+    },
+    {
+      key:"reveal_world",
+      label:"抉擇・公開",
+      prompt:"肚子漸漸藏不住了，關於這件事要不要公開，你怎麼決定？",
+      options:[
+        {trait:"calm", label:"順其自然，被問到就說，沒被問到也不刻意張揚",
+          result:"你沒有刻意宣布，但肚子藏不住，消息就這樣一傳十十傳百地散開了，你倒也樂得輕鬆。"},
+        {trait:"planner", label:"先一一通知最重要的親友，安排好誰先知道誰後知道",
+          result:"你列了一張「公告順序表」，按照親疏遠近一個一個通知，連{partner}都佩服你的組織能力。"},
+        {trait:"social", label:"直接辦一場小型派對，熱熱鬧鬧地公開這個好消息",
+          result:"你們辦了場熱鬧的公告派對，朋友們的驚呼聲此起彼落，{partner}被大家追問細節追到招架不住。"}
+      ]
+    },
+    {
+      key:"birth_plan",
+      label:"抉擇・待產",
+      prompt:"預產期一天天逼近，待產計畫你打算怎麼安排？",
+      options:[
+        {trait:"calm", label:"不特別規劃，相信身體跟醫護團隊，船到橋頭自然直",
+          result:"你沒有準備太多，只跟{partner}說：「到時候跟著護理師走就對了。」出乎意料地，這份篤定讓兩人都安心不少。"},
+        {trait:"planner", label:"把待產包、醫院路線、緊急聯絡人全部清單化，反覆演練",
+          result:"你的待產包清單細到連「拖鞋備用一雙」都寫了進去，連去醫院的路線都試開過三次，{partner}說你比計程車司機還熟路。"},
+        {trait:"emotional", label:"每天滑手機看別人的生產經驗分享，看到哭又看到怕",
+          result:"你半夜抱著手機一篇一篇滑過別人的產檢分享文，看到溫馨的哭，看到驚險的也哭，{partner}只能沒收你的手機哄你睡覺。"}
+      ]
+    },
+    {
+      key:"labor_reaction",
+      label:"抉擇・陣痛",
+      prompt:"宮縮一波比一波猛烈，真正的考驗來了——此刻的你，是什麼反應？",
+      options:[
+        {trait:"calm", label:"咬緊牙關，努力跟著呼吸口訣，把注意力放在呼吸上",
+          result:"你死死盯著牆上的時鐘，跟著助產士的口令一下一下吐氣，疼得眼眶泛紅，卻硬是沒讓自己喊出聲。"},
+        {trait:"planner", label:"腦中閃過清單上的每一步，一邊痛一邊確認流程有沒有照表操課",
+          result:"即使痛到指節發白，你腦中還在飛快核對清單：待產包、醫生、{partner}、呼吸法——一樣都不能少。"},
+        {trait:"social", label:"扯著嗓子又叫又喊，順便對著{partner}碎念他動作太慢",
+          result:"你扯著嗓子又叫又哭，中間還不忘回頭兇{partner}「你是不是動作太慢了」，護理師在一旁都快笑出來。"}
+      ]
+    }
+  ];
 
   // ---------- Trimester 1 (第 1–13 週) ----------
   var T1 = [
@@ -396,6 +513,7 @@ button{font-family:var(--font-body); cursor:pointer;}
   var qIndex = 0;
   var speed = 1;
   var paused = false;
+  var waitingChoice = false;
   var timer = null;
 
   function buildState(){
@@ -412,17 +530,37 @@ button{font-family:var(--font-body); cursor:pointer;}
       severityIdx: severityIdx,
       severity: SEVERITY[severityIdx],
       weightGain: (6 + Math.floor(Math.random()*9)) + (babyCount-1)*3,
-      birthTiming: pick(BIRTH_TIMING)
+      birthTiming: pick(BIRTH_TIMING),
+      traits: {},
+      choiceLog: []
     };
   }
 
+  // Dominant trait -> ending index. calm & planner appear in every decision, so a
+  // perfect 5/5 run unlocks a rarer bonus ending instead of the usual one.
+  var TRAIT_ENDING = { calm:0, emotional:4, planner:6, social:5 };
   function pickEnding(s){
-    var pool = ENDINGS.slice();
     if(s.babyCount > 1 && MULTI_ENDINGS[s.babyCount]){
-      pool.push(MULTI_ENDINGS[s.babyCount]);
-      pool.push(MULTI_ENDINGS[s.babyCount]);
+      return MULTI_ENDINGS[s.babyCount];
     }
-    return pick(pool);
+    var traits = s.traits;
+    var keys = Object.keys(TRAIT_ENDING);
+    var best = null, bestCount = -1, tie = false;
+    for(var i=0;i<keys.length;i++){
+      var k = keys[i];
+      var c = traits[k] || 0;
+      if(c > bestCount){ bestCount = c; best = k; tie = false; }
+      else if(c === bestCount){ tie = true; }
+    }
+    if(bestCount === 5){
+      if(best === "calm") return ENDINGS[2];    // 職場傳奇
+      if(best === "planner") return ENDINGS[3]; // 廚房奶爸
+    }
+    if(tie || bestCount <= 0){
+      if(s.severityIdx >= 3) return ENDINGS[1]; // 地獄孕夫
+      return ENDINGS[7];                        // 新手爸爸
+    }
+    return ENDINGS[TRAIT_ENDING[best]];
   }
 
   function buildQueue(s){
@@ -432,6 +570,7 @@ button{font-family:var(--font-body); cursor:pointer;}
 
     // Trimester 1
     q.push({divider:"孕期一　第 1–13 週"});
+    q.push({choice: DECISIONS[0]});
     var t1pool = shuffle(T1).slice(0, 5).map(function(fn){ return fn(s); });
     var nauseaText = fillTpl(s.severity.text, s);
     t1pool.splice(Math.min(3, t1pool.length), 0, nauseaText);
@@ -440,9 +579,11 @@ button{font-family:var(--font-body); cursor:pointer;}
       q.push({label:"第"+w1[i]+"週", text:t1pool[i], pain: t1pool[i]===nauseaText});
     }
     q.push({label:"第12週", text:revealText(s)});
+    q.push({choice: DECISIONS[1]});
 
     // Trimester 2
     q.push({divider:"孕期二　第 14–27 週"});
+    q.push({choice: DECISIONS[2]});
     var t2src = T2.slice();
     if(s.babyCount > 1){ t2src.push(t2MultiExtra); }
     var t2pool = shuffle(t2src).slice(0, 6).map(function(fn){ return fn(s); });
@@ -451,6 +592,7 @@ button{font-family:var(--font-body); cursor:pointer;}
 
     // Trimester 3
     q.push({divider:"孕期三　第 28–40 週"});
+    q.push({choice: DECISIONS[3]});
     var t3src = T3_CORE.slice();
     if(s.babyCount > 1){ t3src.push(t3MultiExtra); }
     var t3core = shuffle(t3src).slice(0, 5).map(function(fn){ return fn(s); });
@@ -458,6 +600,7 @@ button{font-family:var(--font-body); cursor:pointer;}
     for(var k=0;k<t3core.length;k++){
       q.push({label:"第"+w3[k]+"週", text:t3core[k]});
     }
+    q.push({choice: DECISIONS[4]});
     var tail = t3Tail(s);
     for(var m=0;m<tail.length;m++){ q.push(tail[m]); }
 
@@ -500,7 +643,7 @@ button{font-family:var(--font-body); cursor:pointer;}
       feedEl.appendChild(d);
     } else {
       var e = document.createElement("div");
-      e.className = "entry" + (item.special ? " origin" : "") + (item.pain ? " pain" : "");
+      e.className = "entry" + (item.special ? " origin" : "") + (item.pain ? " pain" : "") + (item.decision ? " decision" : "");
       e.innerHTML = '<div class="label">'+item.label+'</div><div class="text">'+item.text+'</div>';
       feedEl.appendChild(e);
     }
@@ -512,20 +655,81 @@ button{font-family:var(--font-body); cursor:pointer;}
     return base / speed;
   }
 
+  function showChoice(decision){
+    waitingChoice = true;
+    clearTimeout(timer);
+
+    var block = document.createElement("div");
+    block.className = "choice-block";
+
+    var eyebrow = document.createElement("div");
+    eyebrow.className = "choice-eyebrow";
+    eyebrow.textContent = decision.label;
+    block.appendChild(eyebrow);
+
+    var promptEl = document.createElement("div");
+    promptEl.className = "choice-prompt";
+    promptEl.textContent = fillTpl(decision.prompt, state);
+    block.appendChild(promptEl);
+
+    var optsEl = document.createElement("div");
+    optsEl.className = "choice-options";
+
+    decision.options.forEach(function(opt){
+      var b = document.createElement("button");
+      b.className = "choice-btn";
+      b.type = "button";
+      b.textContent = fillTpl(opt.label, state);
+      b.addEventListener("click", function(){
+        if(!waitingChoice) return;
+        var allBtns = optsEl.querySelectorAll(".choice-btn");
+        for(var i=0;i<allBtns.length;i++){ allBtns[i].disabled = true; }
+        b.classList.add("chosen");
+
+        state.traits[opt.trait] = (state.traits[opt.trait] || 0) + 1;
+        state.choiceLog.push(opt.trait);
+
+        setTimeout(function(){
+          appendEntry({label:decision.label, text: fillTpl(opt.result, state), decision:true});
+          waitingChoice = false;
+          scheduleNext();
+        }, 380);
+      });
+      optsEl.appendChild(b);
+    });
+
+    block.appendChild(optsEl);
+    feedEl.appendChild(block);
+    feedEl.scrollTop = feedEl.scrollHeight;
+  }
+
   function scheduleNext(){
-    if(paused) return;
+    if(paused || waitingChoice) return;
     if(qIndex >= queue.length){ goEnding(); return; }
     var item = queue[qIndex];
-    appendEntry(item);
     qIndex++;
+    if(item.choice){
+      showChoice(item.choice);
+      return;
+    }
+    appendEntry(item);
     timer = setTimeout(scheduleNext, stepDelay(item.text));
   }
 
   function skipToEnd(){
     clearTimeout(timer);
+    waitingChoice = false;
     while(qIndex < queue.length){
-      appendEntry(queue[qIndex]);
+      var item = queue[qIndex];
       qIndex++;
+      if(item.choice){
+        var opt = pick(item.choice.options);
+        state.traits[opt.trait] = (state.traits[opt.trait] || 0) + 1;
+        state.choiceLog.push(opt.trait);
+        appendEntry({label:item.choice.label, text: fillTpl(opt.result, state), decision:true});
+      } else {
+        appendEntry(item);
+      }
     }
     goEnding();
   }
@@ -540,6 +744,7 @@ button{font-family:var(--font-body); cursor:pointer;}
     queue = buildQueue(state);
     qIndex = 0;
     dividerCount = -1;
+    waitingChoice = false;
     feedEl.innerHTML = "";
     renderStats(state);
     renderRail(0);
@@ -599,6 +804,7 @@ button{font-family:var(--font-body); cursor:pointer;}
   document.getElementById("btn-skip").addEventListener("click", skipToEnd);
 
   document.getElementById("btn-pause").addEventListener("click", function(){
+    if(waitingChoice) return;
     paused = !paused;
     this.textContent = paused ? "繼續" : "暫停";
     this.classList.toggle("on", paused);
